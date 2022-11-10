@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run:
           name: Export BUILD_ID
-          command: echo $CIRCLE_BUILD_NUM > ~/code/build-id
+          command: echo $CIRCLE_BUILD_NUM | tee ~/code/build-id
       - persist_to_workspace:
           root: ~/
           paths:
@@ -27,12 +27,37 @@ jobs:
       - image: cimg/python:3.10.2
     parallelism: 4
     steps:
-      - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Parallel run
           command: |
             echo "Current directory: $(pwd)"
-            echo "Hello from $CIRCLE_NODE_INDEX/$CIRCLE_NODE_TOTAL" > output.txt
+            mkdir -p "~/output"
+            echo "Hello from $CIRCLE_NODE_INDEX/$CIRCLE_NODE_TOTAL" > "~/output/report-$CIRCLE_NODE_INDEX.txt"
+            find "~/output"
+      - store_artifacts:
+          path: ~/output
+          destination: artifact-file
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - output
+
+  report:
+    resource_class: small
+    working_directory: ~/code
+    docker:
+      - image: cimg/python:3.10.2
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Parallel run
+          command: |
+            for file in output/*; do
+              echo "$file content: $(cat $file)"
+            done
 
 workflows:
   deploy:
@@ -40,3 +65,5 @@ workflows:
       - init
       - build:
           requires: [init]
+      - report:
+          requires: [build]
