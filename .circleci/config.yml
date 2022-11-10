@@ -33,9 +33,9 @@ jobs:
           name: Parallel run
           command: |
             echo "Current directory: $(pwd)"
-            mkdir -p "~/output"
-            echo "Hello from $CIRCLE_NODE_INDEX/$CIRCLE_NODE_TOTAL" > "~/output/report-$CIRCLE_NODE_INDEX.txt"
-            find "~/output"
+            mkdir -p ~/output
+            echo "Hello from ${CIRCLE_NODE_INDEX}/${CIRCLE_NODE_TOTAL}" > ~/output/report-$CIRCLE_NODE_INDEX.txt
+            find ~/output -type f
       - store_artifacts:
           path: ~/output
           destination: artifact-file
@@ -48,14 +48,14 @@ jobs:
     resource_class: small
     working_directory: ~/code
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/base:current
     steps:
       - attach_workspace:
           at: ~/
       - run:
           name: Parallel run
           command: |
-            for file in output/*; do
+            for file in ~/output/*; do
               echo "$file content: $(cat $file)"
             done
 
