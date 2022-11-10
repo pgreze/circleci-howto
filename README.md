@@ -1,3 +1,3 @@
 # CircleCI How-to
 
-TODO
+See configuration: [.circleci/config.yml](.circleci/config.yml)

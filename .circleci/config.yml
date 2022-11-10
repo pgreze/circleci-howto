@@ -4,13 +4,32 @@ orbs:
   python: circleci/python@1.5.0
 
 jobs:
-  build:
+  init:
+    resource_class: small
+    working_directory: ~/code
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/base:current
     steps:
       - checkout
       - run:
-          name: Run program
+          name: Export BUILD_ID
+          command: echo $CIRCLE_BUILD_NUM > ~/code/build-id
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - code
+            - .ssh
+
+  build:
+    resource_class: small
+    working_directory: ~/code
+    docker:
+      - image: cimg/python:3.10.2
+    parallelism: 4
+    steps:
+      - checkout
+      - run:
+          name: Parallel run
           command: |
             echo "Current directory: $(pwd)"
             echo "Hello from $CIRCLE_NODE_INDEX/$CIRCLE_NODE_TOTAL" > output.txt
@@ -18,4 +37,6 @@ jobs:
 workflows:
   deploy:
     jobs:
-      - build
+      - init
+      - build:
+          requires: [init]
