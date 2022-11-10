@@ -32,7 +32,7 @@ jobs:
       - run:
           name: Parallel run
           command: |
-            echo "Current directory: $(pwd)"
+            echo "Current directory: $(pwd)" # /home/circleci/code
             mkdir -p ~/output
             echo "Hello from ${CIRCLE_NODE_INDEX}/${CIRCLE_NODE_TOTAL}" > ~/output/report-$CIRCLE_NODE_INDEX.txt
             find ~/output -type f
@@ -55,6 +55,12 @@ jobs:
       - run:
           name: Parallel run
           command: |
+            # Output:
+            # /home/circleci/output/report-0.txt content: Hello from 0/4
+            # /home/circleci/output/report-1.txt content: Hello from 1/4
+            # /home/circleci/output/report-2.txt content: Hello from 2/4
+            # /home/circleci/output/report-3.txt content: Hello from 3/4
+            # https://app.circleci.com/pipelines/github/pgreze/circleci-howto/11/workflows/cfd59ef1-e30e-49e1-8874-83d7368c7d02/jobs/27
             for file in ~/output/*; do
               echo "$file content: $(cat $file)"
             done
