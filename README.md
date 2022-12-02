@@ -1,4 +1,4 @@
-# CircleCI How-to
+# CircleCI how to
 
 See configuration: [.circleci/config.yml](.circleci/config.yml)
 
